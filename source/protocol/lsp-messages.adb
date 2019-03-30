@@ -852,13 +852,24 @@ package body LSP.Messages is
      (S : access Ada.Streams.Root_Stream_Type'Class;
       V : out MarkedString)
    is
-      JS : LSP.JSON_Streams.JSON_Stream'Class renames
-        LSP.JSON_Streams.JSON_Stream'Class (S.all);
+      JS       : LSP.JSON_Streams.JSON_Stream'Class renames
+                   LSP.JSON_Streams.JSON_Stream'Class (S.all);
+      Language : LSP_String;
+      Value    : LSP_String;
    begin
       JS.Start_Object;
-      Read_String (JS, +"language", V.language);
-      Read_String (JS, +"value", V.value);
+      Read_String (JS, +"language", Language);
+      Read_String (JS, +"value", Value);
       JS.End_Object;
+
+      if Language = Empty_LSP_String then
+         V := MarkedString'(Is_String => True,
+                            value     => Value);
+      else
+         V := MarkedString'(Is_String => False,
+                            value     => Value,
+                            language  => Language);
+      end if;
    end Read_MarkedString;
 
    ------------------------------
