@@ -195,6 +195,7 @@ package body Spawn.Processes is
       use Ada.Strings.Unbounded;
       use type Interfaces.C.size_t;
       use type Glib.IOChannel.GIOStatus;
+      use type Glib.Spawn.GSpawn_Flags;
 
       procedure Prepare_Arguments (argv : out Gtkada.Types.Chars_Ptr_Array);
       --  Allocate argumnets
@@ -236,7 +237,9 @@ package body Spawn.Processes is
         (Working_Directory => dir,
          Argv              => argv'Access,
          Envp              => envp'Access,
-         Flags             => Glib.Spawn.G_Spawn_Do_Not_Reap_Child,
+         Flags             =>
+           Glib.Spawn.G_Spawn_Do_Not_Reap_Child
+             or Glib.Spawn.G_Spawn_Search_Path_From_Envp,
          Child_Setup       => null,
          Data              => null,
          Child_Pid         => Self.pid'Access,
