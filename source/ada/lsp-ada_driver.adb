@@ -33,6 +33,10 @@ with LSP.Ada_Handlers;
 
 with Libadalang.Common; use Libadalang.Common;
 
+--------------------
+-- LSP.Ada_Driver --
+--------------------
+
 procedure LSP.Ada_Driver is
 
    Server  : aliased LSP.Servers.Server;
@@ -46,6 +50,7 @@ procedure LSP.Ada_Driver is
 
    ALS_Dir : constant Virtual_File := Get_Home_Directory / ".als";
    Do_Exit : Boolean := False;
+   Trying_To_Finalize : Boolean := False;
 begin
 
    --  If we can find the .als directory in the home directory, then we want
@@ -79,6 +84,7 @@ begin
 
       begin
          if Do_Exit then
+            Trying_To_Finalize := True;
             Server.Finalize;
             return;
          end if;
@@ -102,7 +108,10 @@ begin
                & Exception_Name (E) & " - " &  Exception_Message (E));
             Server_Trace.Trace (Symbolic_Traceback (E));
             Context.Reload;
-            Do_Exit := False;
+            --  Do not do an exit on an unexcepted exception, except if the
+            --  exception happened while trying to finalize: then, this should
+            --  really be fatal.
+            Do_Exit := Trying_To_Finalize;
       end;
    end loop;
 
